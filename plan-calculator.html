@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Planos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .select-field, .input-field {
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .select-field:focus, .input-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #2563eb;
+        }
+        
+        .badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .checkbox {
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">🧮 Calculadora de Planos</h1>
+            <p class="text-gray-600">Configure seu plano e módulos adicionais</p>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Seleção de Plano -->
+            <div class="card">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">📋 Selecionar Plano</h2>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Plano:</label>
+                    <select id="planType" class="select-field" onchange="updateCalculation()">
+                        <option value="">Selecione um plano</option>
+                        <option value="delivery">Delivery</option>
+                        <option value="mesas">Mesas</option>
+                        <option value="premium">Premium</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Período:</label>
+                    <select id="planPeriod" class="select-field" onchange="updateCalculation()">
+                        <option value="">Selecione um período</option>
+                        <option value="mensal">Mensal</option>
+                        <option value="trimestral">Trimestral</option>
+                        <option value="semestral">Semestral</option>
+                        <option value="anual">Anual</option>
+                    </select>
+                </div>
+                
+                <div id="planDetails" class="hidden">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-blue-800 mb-2">Detalhes do Plano</h3>
+                        <div class="space-y-1 text-sm">
+                            <div class="flex justify-between">
+                                <span>Valor Total:</span>
+                                <span id="planTotal" class="font-semibold">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Valor Mensal:</span>
+                                <span id="planMonthly" class="font-semibold">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Módulos Adicionais -->
+            <div class="card">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">🔧 Módulos Adicionais</h2>
+                
+                <div class="space-y-3">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="moduloIfood" class="checkbox" onchange="updateCalculation()">
+                        <label for="moduloIfood" class="text-sm">Integração com Ifood - R$ 19,90/mês</label>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <input type="checkbox" id="moduloEstoque" class="checkbox" onchange="updateCalculation()">
+                        <label for="moduloEstoque" class="text-sm">Controle de Estoque Completo - R$ 19,90/mês</label>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <input type="checkbox" id="moduloRoteirizacao" class="checkbox" onchange="updateCalculation()">
+                        <label for="moduloRoteirizacao" class="text-sm">Roteirização de entregas - R$ 49,90/mês</label>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <input type="checkbox" id="moduloFiscal" class="checkbox" onchange="updateCalculation()">
+                        <label for="moduloFiscal" class="text-sm">Emissão de Cupom Fiscal - R$ 59,90/mês</label>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <input type="checkbox" id="moduloFinanceiro" class="checkbox" onchange="updateCalculation()">
+                        <label for="moduloFinanceiro" class="text-sm">Módulo Financeiro - R$ 49,90/mês</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Desconto -->
+            <div class="card">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">💰 Desconto</h2>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Desconto (%):</label>
+                    <input type="number" id="discount" class="input-field" placeholder="0" min="0" max="100" onchange="updateCalculation()">
+                </div>
+            </div>
+            
+            <!-- Resumo Final -->
+            <div class="card">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">📊 Resumo Final</h2>
+                
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center py-2 border-b">
+                        <span class="text-gray-600">Plano Base (Mensal):</span>
+                        <span id="summaryPlanMonthly" class="font-semibold">R$ 0,00</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center py-2 border-b">
+                        <span class="text-gray-600">Módulos (Mensal):</span>
+                        <span id="summaryModulesMonthly" class="font-semibold">R$ 0,00</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center py-2 border-b">
+                        <span class="text-gray-600">Subtotal (Mensal):</span>
+                        <span id="summarySubtotalMonthly" class="font-semibold">R$ 0,00</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center py-2 border-b">
+                        <span class="text-gray-600">Desconto:</span>
+                        <span id="summaryDiscount" class="font-semibold text-red-600">- R$ 0,00</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center py-3 bg-green-50 px-4 rounded-lg">
+                        <span class="text-lg font-bold text-green-800">Total Mensal:</span>
+                        <span id="summaryTotalMonthly" class="text-xl font-bold text-green-600">R$ 0,00</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center py-3 bg-blue-50 px-4 rounded-lg">
+                        <span class="text-lg font-bold text-blue-800">Total do Período:</span>
+                        <span id="summaryTotalPeriod" class="text-xl font-bold text-blue-600">R$ 0,00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const planos = {
+            delivery: {
+                mensal: { total: 179.99, mensal: 179.99 },
+                trimestral: { total: 495.00, mensal: 165.00 },
+                semestral: { total: 930.00, mensal: 155.00 },
+                anual: { total: 1740.00, mensal: 145.00 }
+            },
+            mesas: {
+                mensal: { total: 159.99, mensal: 159.99 },
+                trimestral: { total: 450.00, mensal: 150.00 },
+                semestral: { total: 870.00, mensal: 145.00 },
+                anual: { total: 1620.00, mensal: 135.00 }
+            },
+            premium: {
+                mensal: { total: 219.99, mensal: 219.99 },
+                trimestral: { total: 615.00, mensal: 205.00 },
+                semestral: { total: 1170.00, mensal: 195.00 },
+                anual: { total: 2220.00, mensal: 185.00 }
+            }
+        };
+        
+        const modules = {
+            moduloIfood: { name: "Integração com Ifood", value: 19.90 },
+            moduloEstoque: { name: "Controle de Estoque Completo", value: 19.90 },
+            moduloRoteirizacao: { name: "Roteirização de entregas", value: 49.90 },
+            moduloFiscal: { name: "Emissão de Cupom Fiscal", value: 59.90 },
+            moduloFinanceiro: { name: "Módulo Financeiro", value: 49.90 }
+        };
+        
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+        
+        function getPeriodMultiplier(period) {
+            switch(period) {
+                case 'mensal': return 1;
+                case 'trimestral': return 3;
+                case 'semestral': return 6;
+                case 'anual': return 12;
+                default: return 1;
+            }
+        }
+        
+        function updateCalculation() {
+            const planType = document.getElementById('planType').value;
+            const planPeriod = document.getElementById('planPeriod').value;
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
+            
+            // Mostrar/ocultar detalhes do plano
+            const planDetails = document.getElementById('planDetails');
+            if (planType && planPeriod) {
+                planDetails.classList.remove('hidden');
+                const plan = planos[planType][planPeriod];
+                document.getElementById('planTotal').textContent = formatCurrency(plan.total);
+                document.getElementById('planMonthly').textContent = formatCurrency(plan.mensal);
+            } else {
+                planDetails.classList.add('hidden');
+            }
+            
+            // Calcular valores
+            let planMonthly = 0;
+            let planTotal = 0;
+            
+            if (planType && planPeriod) {
+                const plan = planos[planType][planPeriod];
+                planMonthly = plan.mensal;
+                planTotal = plan.total;
+            }
+            
+            // Calcular módulos
+            let modulesMonthly = 0;
+            Object.keys(modules).forEach(moduleId => {
+                const checkbox = document.getElementById(moduleId);
+                if (checkbox.checked) {
+                    modulesMonthly += modules[moduleId].value;
+                }
+            });
+            
+            // Calcular subtotais
+            const subtotalMonthly = planMonthly + modulesMonthly;
+            const discountAmount = (subtotalMonthly * discount) / 100;
+            const totalMonthly = subtotalMonthly - discountAmount;
+            
+            const periodMultiplier = getPeriodMultiplier(planPeriod);
+            const totalPeriod = totalMonthly * periodMultiplier;
+            
+            // Atualizar resumo
+            document.getElementById('summaryPlanMonthly').textContent = formatCurrency(planMonthly);
+            document.getElementById('summaryModulesMonthly').textContent = formatCurrency(modulesMonthly);
+            document.getElementById('summarySubtotalMonthly').textContent = formatCurrency(subtotalMonthly);
+            document.getElementById('summaryDiscount').textContent = '- ' + formatCurrency(discountAmount);
+            document.getElementById('summaryTotalMonthly').textContent = formatCurrency(totalMonthly);
+            document.getElementById('summaryTotalPeriod').textContent = formatCurrency(totalPeriod);
+        }
+        
+        // Inicializar
+        updateCalculation();
+    </script>
+</body>
+</html>

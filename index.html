@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Planos</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #5D3A8E; /* Roxo principal */
+            --color-accent: #9747FF;  /* Roxo destaque */
+            --color-muted: #6b7280;   /* Cinza para texto secundário */
+            --color-card: #ffffff;    /* Fundo de cards */
+            --color-background: #f3f4f6; /* Fundo da página */
+            --color-border: #e5e7eb;  /* Bordas suaves */
+            --color-primary-foreground: #ffffff;
+            --color-muted-foreground: #a1a1aa;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        /* Fundo Premium */
+        body {
+            background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%);
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #374151;
+            font-size: 16px;
+            line-height: 1.5;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Shapes decorativos no fundo */
+        body::before,
+        body::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 0;
+        }
+        
+        body::before {
+            top: -150px;
+            right: -200px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(151,71,255,0.15), transparent 70%);
+        }
+        
+        body::after {
+            bottom: -200px;
+            left: -150px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(93,58,142,0.12), transparent 70%);
+        }
+        
+        /* Conteúdo principal acima do fundo */
+        #plan-calculator {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Modal com efeito de profundidade */
+        #captureModal {
+            background-color: rgba(0,0,0,0.75) !important;
+            backdrop-filter: blur(6px);
+        }
+        
+        #captureModal .bg-white {
+            background: #ffffff !important;
+            border: 1px solid #e5e7eb !important;
+        }
+
+        /* Container de cartões com leve destaque */
+        .glass-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-card:hover {
+            box-shadow: 0 12px 28px rgba(93,58,142,0.15);
+            transform: translateY(-2px);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        /* Fallback para screenshots - cor sólida quando background-clip não funciona */
+        .gradient-text-fallback {
+            color: var(--color-primary) !important;
+            background: none !important;
+            font-weight: bold;
+        }
+
+        .bg-gradient-primary {
+            background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+        }
+
+        .shadow-elegant {
+            box-shadow: 0 20px 25px -5px rgba(93, 58, 142, 0.1), 0 10px 10px -5px rgba(93, 58, 142, 0.04);
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .animate-scale-in {
+            animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .animate-pulse {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .animate-bounce-subtle {
+            animation: bounceSubtle 2s ease-in-out infinite;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes bounceSubtle {
+            0%, 100% { transform: translateY(0px) scale(1.05); }
+            50% { transform: translateY(-5px) scale(1.05); }
+        }
+
+        .card {
+            background-color: var(--color-card);
+            border-radius: 1rem;
+            box-shadow: 0 3px 12px rgba(93, 58, 142, 0.08), 0 1px 3px rgba(93, 58, 142, 0.05);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(151, 71, 255, 0.12);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border: 1px solid rgba(151, 71, 255, 0.2);
+            box-shadow: 0 6px 20px rgba(93, 58, 142, 0.12), 0 3px 6px rgba(93, 58, 142, 0.08), 0 0 15px rgba(139, 92, 246, 0.08);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 9999px;
+            padding: 0.35rem 0.85rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .badge-outline {
+            border: 1.5px solid var(--color-primary);
+            color: var(--color-primary);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+        }
+
+        .badge-secondary {
+            background: linear-gradient(to right, rgba(93, 58, 142, 0.1), rgba(151, 71, 255, 0.1));
+            color: var(--color-primary);
+            border: 1px solid rgba(151, 71, 255, 0.2);
+        }
+
+        .badge-destructive {
+            background: linear-gradient(to right, #5D3A8E, #9747FF);
+            color: white;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            letter-spacing: 0.01em;
+            padding: 0.5rem 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+            transition: 0.6s;
+        }
+
+        .btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: var(--color-primary-foreground);
+            box-shadow: 0 4px 15px rgba(151, 71, 255, 0.4);
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(151, 71, 255, 0.5);
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #6d45a4, #a85cff);
+        }
+        
+        .btn-glow {
+            animation: glow 2s infinite alternate;
+        }
+        
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 5px rgba(151, 71, 255, 0.5);
+            }
+            to {
+                box-shadow: 0 0 15px rgba(151, 71, 255, 0.8);
+            }
+        }
+
+        .btn-secondary {
+            background-color: rgba(30, 30, 46, 0.8);
+            color: #e2e8f0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(93, 58, 142, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(93, 58, 142, 0.2);
+            background-color: rgba(40, 40, 60, 0.9);
+            border-color: rgba(93, 58, 142, 0.5);
+        }
+
+        .btn-glow:hover {
+            box-shadow: 0 0 25px var(--color-accent);
+        }
+        
+        .btn-outline {
+            border: 2px solid rgba(151, 71, 255, 0.3);
+            background-color: rgba(30, 30, 46, 0.5);
+            color: #e2e8f0;
+            backdrop-filter: blur(4px);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline:hover {
+            border-color: var(--color-accent);
+            background-color: rgba(93, 58, 142, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(151, 71, 255, 0.3);
+        }
+
+        .checkbox {
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 0.35rem;
+            border: 2px solid rgba(151, 71, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: white;
+        }
+        
+        .checkbox:hover {
+            border-color: rgba(151, 71, 255, 0.4);
+            box-shadow: 0 0 0 3px rgba(151, 71, 255, 0.08);
+            transform: scale(1.05);
+        }
+
+        .checkbox:checked {
+            background: linear-gradient(135deg, #9747FF, #8B5CF6);
+            border-color: #9747FF;
+            box-shadow: 0 0 8px rgba(151, 71, 255, 0.3);
+            transform: scale(1.05);
+        }
+        
+
+        
+        .checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+        }
+
+        .select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239747FF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding: 0.75rem 3rem 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 2px solid rgba(151, 71, 255, 0.3);
+            font-weight: 500;
+            color: #374151;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            line-height: 1.5;
+            text-overflow: ellipsis;
+            z-index: 10;
+            position: relative;
+        }
+
+        .select:hover {
+            border-color: rgba(151, 71, 255, 0.4);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .select:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(151, 71, 255, 0.25);
+        }
+
+        .input {
+            border-radius: 0.75rem;
+            border: 2px solid rgba(151, 71, 255, 0.2);
+            padding: 0.75rem 1rem;
+            font-weight: 500;
+            color: var(--color-primary);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+        }
+        
+        .input:hover {
+            border-color: rgba(151, 71, 255, 0.4);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(151, 71, 255, 0.25);
+        }
+
+        /* Active Card */
+        .active-card {
+            border: 2px solid #9747FF;
+            background: linear-gradient(135deg, rgba(93, 58, 142, 0.15), rgba(151, 71, 255, 0.25));
+            box-shadow: 0 8px 24px rgba(93, 58, 142, 0.25);
+            transform: scale(1.05);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .active-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px solid var(--color-accent);
+            border-radius: 1rem;
+            pointer-events: none;
+        }
+
+        .period-option {
+            border: 2px solid var(--color-border);
+            border-radius: 0.75rem;
+            padding: 0.375rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--color-card);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+            min-height: 45px;
+        }
+        
+        .period-option:hover:not(.active) {
+            border-color: rgba(151, 71, 255, 0.25);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(93, 58, 142, 0.12);
+        }
+
+        .period-option.active {
+            border-color: var(--color-accent);
+            background: linear-gradient(135deg, rgba(93, 58, 142, 0.4), rgba(139, 92, 246, 0.3));
+            box-shadow: 0 6px 16px rgba(93, 58, 142, 0.2), 0 0 20px rgba(139, 92, 246, 0.1);
+            transform: translateY(-2px) scale(1.03);
+        }
+
+        /* ================================ 
+           Destaques de Planos 
+        ================================ */
+
+        /* Todos os cards */
+        .plan-card {
+            position: relative;
+        }
+
+        /* Hover para dar sensação de clique */
+        .period-option.plan-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+
+        /* Hover específico para cada plano */
+        .period-option.plan-mensal:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+        }
+
+        .period-option.plan-trimestral:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+        }
+
+        .period-option.plan-semestral:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 6px 16px rgba(138, 79, 255, 0.15) !important;
+        }
+
+        .period-option.plan-anual:hover {
+            transform: scale(1.08) translateY(-2px) !important;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.25) !important;
+        }
+
+        /* Mensal (neutro) */
+        .period-option.plan-mensal {
+            background: #f9f9f9 !important;
+            color: #444 !important;
+            border-color: #ddd !important;
+        }
+
+        /* Trimestral (neutro) */
+        .period-option.plan-trimestral {
+            background: #f9f9f9 !important;
+            color: #444 !important;
+            border-color: #ddd !important;
+        }
+
+        /* Semestral (leve destaque) */
+        .period-option.plan-semestral {
+            background: linear-gradient(135deg, #f3eaff, #ede6ff) !important;
+            border-color: #8a4fff !important;
+            color: #444 !important;
+        }
+
+        /* Anual (plano recomendado) */
+        .period-option.plan-anual {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7) !important;
+            color: #fff !important;
+            animation: pulseGlow 2s ease-in-out infinite !important;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+            }
+            50% {
+                transform: scale(1.02);
+                box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+            }
+        }
+
+        .period-option.plan-anual .plan-price {
+            color: #fff !important;
+        }
+
+        .period-option.plan-anual .plan-subprice {
+            color: rgba(255,255,255,0.85) !important;
+        }
+
+        /* Badge de destaque removido - agora usando HTML direto */
+
+        /* Título do plano */
+        .plan-card h3 {
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+
+        /* Preço principal */
+        .plan-price {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin: 4px 0;
+        }
+
+        /* Subpreço (ex: total anual) */
+        .plan-subprice {
+            font-size: 0.75rem;
+            opacity: 0.85;
+        }
+
+        /* Economia */
+        .plan-saving {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #28a745; /* verde de economia */
+        }
+        
+        @keyframes subtle-glow {
+            from {
+                box-shadow: 0 8px 20px rgba(93, 58, 142, 0.25);
+            }
+            to {
+                box-shadow: 0 8px 25px rgba(151, 71, 255, 0.4);
+            }
+        }
+
+        .module-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border: 2px solid rgba(93, 58, 142, 0.2);
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 0.5rem;
+            color: #374151;
+            font-weight: 600;
+        }
+        
+        .module-option:hover:not(.active) {
+            border-color: rgba(151, 71, 255, 0.25);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 12px rgba(93, 58, 142, 0.08);
+        }
+
+        .module-option.active {
+            border-color: rgba(93, 58, 142, 0.8);
+            background: linear-gradient(135deg, rgba(93, 58, 142, 0.1), rgba(139, 92, 246, 0.1));
+            box-shadow: 0 4px 12px rgba(93, 58, 142, 0.2);
+            transform: translateY(-1px);
+            color: #5d3a8e;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-1 md:p-2 bg-gray-50">
+    <div id="plan-calculator" class="max-w-6xl mx-auto space-y-2">
+        <div class="text-center mb-1 relative">
+            <div class="flex items-center justify-center gap-4 mb-1">
+                <h1 class="text-3xl font-bold gradient-text animate-fade-in tracking-tight">Calculadora CardapioWEB</h1>
+            </div>
+        </div>
+
+        <!-- Conteúdo da Calculadora -->
+        <div id="calculatorContent" class="grid lg:grid-cols-2 gap-4">
+            <!-- Painel Esquerdo - Configuração -->
+            <div class="card glass-card p-4 relative overflow-hidden group hover:shadow-elegant transition-all duration-500 animate-slide-up">
+                <div class="absolute -top-20 -right-20 w-40 h-40 bg-gradient-primary opacity-10 rounded-full blur-xl group-hover:opacity-20 transition-opacity duration-500"></div>
+                <h2 class="text-lg font-bold mb-2 text-purple-700 flex items-center gap-3">
+                    <div class="w-6 h-6 bg-gradient-primary rounded-full flex items-center justify-center">
+                        <span class="text-white text-xs">1</span>
+                    </div>
+                    Configuração do Plano
+                </h2>
+                
+                <div class="space-y-2">
+                    <!-- Seleção de Plano Base -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold mb-1 block flex items-center gap-2">
+                            <div class="w-2 h-2 bg-gradient-primary rounded-full"></div>
+                            Escolha um plano base:
+                        </label>
+                        <select id="planType" class="select w-full h-14 text-base border-2 hover:border-purple-500/50 transition-colors bg-white border-gray-300 text-gray-700 py-3">
+                            <option value="delivery">🚚 Plano Delivery</option>
+                            <option value="mesas">🪑 Plano Mesas</option>
+                            <option value="premium">⭐ Plano Premium</option>
+                        </select>
+                    </div>
+
+                    <!-- Seleção de Período -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold mb-1 block flex items-center gap-2 text-gray-700">
+                            <div class="w-2 h-2 bg-gradient-primary rounded-full"></div>
+                            Período:
+                        </label>
+                        <div id="periodOptions" class="grid grid-cols-2 gap-2">
+                            <!-- Períodos serão inseridos via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Módulos Adicionais -->
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold mb-0 block flex items-center gap-2">
+                            <div class="w-2 h-2 bg-gradient-primary rounded-full"></div>
+                            Módulos adicionais:
+                        </label>
+                        <div id="moduleOptions" class="space-y-1">
+                            <!-- Módulos serão inseridos via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Painel Direito - Comparações -->
+            <div class="space-y-3">
+
+                <!-- Combinações -->
+                <div class="space-y-2">
+
+                    <div id="combination1" class="card p-3 cursor-pointer transition-all duration-500 overflow-hidden hover:shadow-elegant border-2 border-purple-500/30 bg-white backdrop-blur-sm animate-scale-in">
+                        <div class="absolute -top-10 -right-10 w-20 h-20 bg-gradient-primary opacity-10 rounded-full blur-xl group-hover:opacity-20 transition-opacity duration-500"></div>
+                        
+                        <div class="relative z-10">
+                            <h3 class="text-lg font-bold text-purple-700 mb-1 flex items-center gap-2">
+                                💼 Combinação 1
+                                <div class="w-2 h-2 bg-gradient-primary rounded-full animate-pulse"></div>
+                            </h3>
+                            
+                            <div id="combination1Content" class="combination-placeholder">
+                                Selecione um plano e os módulos
+                            </div>
+                        </div>
+                    </div>
+                    <div id="combination2" class="card p-3 cursor-pointer transition-all duration-500 overflow-hidden hover:shadow-elegant border-2 border-purple-500/30 bg-white backdrop-blur-sm animate-scale-in">
+                        <div class="absolute -top-10 -right-10 w-20 h-20 bg-gradient-primary opacity-10 rounded-full blur-xl group-hover:opacity-20 transition-opacity duration-500"></div>
+                        
+                        <div class="relative z-10">
+                            <h3 class="text-lg font-bold text-purple-700 mb-1 flex items-center gap-2">
+                                🎯 Combinação 2
+                            </h3>
+                            
+                            <div id="combination2Content" class="combination-placeholder">
+                                Selecione um plano e os módulos
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Comparativo -->
+                <div id="savingsComparison" class="card glass-card p-4 relative overflow-hidden group hidden">
+                    <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-primary opacity-5 rounded-full blur-xl group-hover:opacity-10 transition-opacity duration-500"></div>
+                    <h3 class="font-bold text-purple-600 mb-3 flex items-center gap-2 text-sm">
+                        📊 Análise Comparativa - Qual é melhor para você?
+                    </h3>
+                    
+                    <!-- Comparação de economia -->
+                    <div id="economyComparison" class="mb-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg hidden">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-green-600 font-bold text-sm">💰 Economia Identificada</span>
+                        </div>
+                        <p id="economyText" class="text-xs text-green-700 font-medium"></p>
+                    </div>
+                    
+                    <!-- Comparação de benefícios -->
+                    <div id="benefitsComparison" class="mb-4 space-y-2 hidden">
+                        <h4 class="text-xs font-bold text-gray-700 mb-2">🎯 Principais Diferenças:</h4>
+                        <div id="benefitsList" class="space-y-1"></div>
+                    </div>
+                    
+                    <!-- Recomendação -->
+                    <div id="recommendation" class="p-3 bg-gradient-to-r from-purple-50 to-purple-50 border border-purple-200 rounded-lg hidden">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-purple-600 font-bold text-sm">🏆 Nossa Recomendação</span>
+                        </div>
+                        <p id="recommendationText" class="text-xs text-purple-700 font-medium"></p>
+                    </div>
+                    
+                    <div class="relative z-10 bg-gradient-to-r from-gray-100/50 to-purple-100/30 p-3 rounded-xl border border-purple-500/20">
+                        <p id="savingsComparisonText" class="text-xs font-medium leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <!-- Controle de Desconto Oculto -->
+                <div class="flex justify-end mb-2">
+                    <button id="toggleDiscount" class="text-gray-500 hover:text-purple-400 transition-colors duration-200 text-sm font-mono w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200/50" title="Desconto especial">
+                        -
+                    </button>
+                </div>
+                <div class="card glass-card p-4 relative overflow-hidden group animate-fade-in hidden" id="discountSection" style="animation-delay: 0.4s;">
+                    <div class="absolute -top-5 -right-5 w-16 h-16 bg-gradient-primary opacity-10 rounded-full blur-lg group-hover:opacity-20 transition-opacity duration-300"></div>
+                    <div class="flex justify-between items-center space-x-3">
+                        <h3 class="font-semibold text-purple-700 flex items-center gap-2 text-sm">
+                            💰 Desconto Especial
+                        </h3>
+                    </div>
+                    
+                    <div id="discountControls" class="mt-2 p-2 bg-gradient-to-r from-purple-100/30 to-gray-100/30 rounded-xl border border-purple-500/20 animate-fade-in hidden">
+                        <div class="flex items-center space-x-2">
+                            <label for="discount" class="font-medium text-sm">Desconto:</label>
+                            <div class="flex items-center space-x-1">
+                                <input id="discount" type="number" min="0" max="100" step="0.1" value="0" class="input w-20 text-center font-semibold text-xs h-8" placeholder="0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botão Flutuante de Captura -->
+        <button id="captureButton" class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-purple-600 to-purple-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 z-40 flex items-center justify-center group" title="Capturar Screenshot">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+        </button>
+
+        <!-- Modal de Captura -->
+        <div id="captureModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl p-6 max-w-4xl max-h-[90vh] overflow-auto relative border border-gray-300">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-purple-700">📸 Plano Capturado</h2>
+                    <button id="closeModal" class="text-gray-600 hover:text-gray-800 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div id="modalImageContainer" class="mb-4">
+                    <img id="modalImage" alt="Plano capturado" class="w-full rounded-lg" />
+                </div>
+                <div class="flex gap-3 justify-center">
+                    <button id="downloadModalButton" class="btn btn-primary flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7,10 12,15 17,10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        <span>Download</span>
+                    </button>
+                    <button id="recaptureModalButton" class="btn btn-outline flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 4v6h6"></path>
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                        </svg>
+                        <span>Recapturar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+        // Dados dos planos
+        const planos = {
+            delivery: {
+                mensal: { total: 179.99, mensal: 179.99 },
+                trimestral: { total: 495.00, mensal: 165.00 },
+                semestral: { total: 930.00, mensal: 155.00 },
+                anual: { total: 1740.00, mensal: 145.00 },
+            },
+            mesas: {
+                mensal: { total: 159.99, mensal: 159.99 },
+                trimestral: { total: 450.00, mensal: 150.00 },
+                semestral: { total: 870.00, mensal: 145.00 },
+                anual: { total: 1620.00, mensal: 135.00 },
+            },
+            premium: {
+                mensal: { total: 219.99, mensal: 219.99 },
+                trimestral: { total: 615.00, mensal: 205.00 },
+                semestral: { total: 1170.00, mensal: 195.00 },
+                anual: { total: 2220.00, mensal: 185.00 },
+            },
+        };
+
+        // Dados dos módulos
+        const modules = [
+            { id: "moduloIfood", name: "Integração com Ifood", value: 19.90 },
+            { id: "moduloEstoque", name: "Controle de Estoque Completo", value: 19.90 },
+            {
+                id: "moduloRoteirizacao",
+                name: "Roteirização de entregas",
+                valueByPeriod: {
+                    mensal: 49.90,
+                    trimestral: 49.90,
+                    semestral: 49.90,
+                    anual: 49.90,
+                },
+            },
+            { id: "moduloFiscal", name: "Emissão de Cupom Fiscal", value: 59.90 },
+            {
+                id: "moduloFinanceiro",
+                name: "Módulo Financeiro",
+                valueByPeriod: {
+                    mensal: 49.90,
+                    trimestral: 49.90,
+                    semestral: 49.90,
+                    anual: 49.90,
+                },
+            },
+        ];
+
+        // Estado da aplicação
+        let state = {
+            selectedPlanType: 'delivery',
+            selectedPeriod: null,
+            selectedModules: [],
+            discount: 0,
+            activeCombination: 'combination1',
+            combination1: {
+                plan: null,
+                modules: [],
+                discount: 0,
+                overallMonthly: 0,
+                overallTotal: 0
+            },
+            combination2: {
+                plan: null,
+                modules: [],
+                discount: 0,
+                overallMonthly: 0,
+                overallTotal: 0
+            },
+            showDiscount: false
+        };
+
+        // Funções utilitárias
+        function getMultiplier(period) {
+            switch (period) {
+                case "trimestral": return 3;
+                case "semestral": return 6;
+                case "anual": return 12;
+                default: return 1;
+            }
+        }
+
+        function ceilIfNeeded(value) {
+            const multiplied = value * 100;
+            if (Math.abs(multiplied - Math.round(multiplied)) < 1e-9) {
+                return value;
+            }
+            return Math.ceil(multiplied) / 100;
+        }
+
+        function formatCurrency(value) {
+            return `R$ ${value.toFixed(2).replace('.', ',')}`;
+        }
+
+        // Função para atualizar a combinação ativa
+        function updateCombination() {
+            if (!state.selectedPeriod) return;
+
+            const planData = planos[state.selectedPlanType][state.selectedPeriod];
+            const multiplier = getMultiplier(state.selectedPeriod);
+            
+            let modulesTotalMonthly = 0;
+            let modulesTotalTotal = 0;
+            const combinationModules = modules.filter(mod => state.selectedModules.includes(mod.id));
+            
+            combinationModules.forEach(mod => {
+                const moduleMonthly = mod.valueByPeriod ? mod.valueByPeriod[state.selectedPeriod] : mod.value;
+                modulesTotalMonthly += moduleMonthly;
+                modulesTotalTotal += moduleMonthly * multiplier;
+            });
+
+            const discountedPlanTotal = state.discount > 0 ? ceilIfNeeded(planData.total * (1 - state.discount/100)) : planData.total;
+            const discountedPlanMonthly = state.discount > 0 ? ceilIfNeeded(planData.mensal * (1 - state.discount/100)) : planData.mensal;
+            
+            const overallTotal = discountedPlanTotal + modulesTotalTotal;
+            const overallMonthly = discountedPlanMonthly + modulesTotalMonthly;
+
+            const newCombination = {
+                plan: { tipoPlano: state.selectedPlanType, periodo: state.selectedPeriod },
+                modules: combinationModules,
+                discount: state.discount,
+                overallTotal,
+                overallMonthly,
+            };
+
+            if (state.activeCombination === "combination1") {
+                state.combination1 = newCombination;
+            } else {
+                state.combination2 = newCombination;
+            }
+
+            renderCombinations();
+            updateSavingsComparison();
+        }
+
+        // Função para carregar dados de uma combinação
+        function loadCombinationData(combination) {
+            if (combination.plan) {
+                state.selectedPlanType = combination.plan.tipoPlano;
+                state.selectedPeriod = combination.plan.periodo;
+            }
+            state.selectedModules = combination.modules.map(mod => mod.id);
+            state.discount = combination.discount;
+
+            renderPlanTypeSelect();
+            renderPeriodOptions();
+            renderModuleOptions();
+            renderDiscountControls();
+        }
+
+        // Função para calcular pontuação de benefício
+        function getBenefitScore(comb) {
+            if (!comb.plan) return 0;
+            const rankMap = { mensal: 1, trimestral: 2, semestral: 3, anual: 4 };
+            const periodRank = rankMap[comb.plan.periodo] || 0;
+            const moduleCount = comb.modules.length;
+            let modulesSum = 0;
+            
+            comb.modules.forEach(mod => {
+                const moduleMonthly = mod.valueByPeriod ? mod.valueByPeriod[comb.plan.periodo] : mod.value;
+                modulesSum += moduleMonthly;
+            });
+            
+            const planTotal = planos[comb.plan.tipoPlano][comb.plan.periodo].total;
+            const multiplier = getMultiplier(comb.plan.periodo);
+            const modulesTotal = modulesSum * multiplier;
+            const overallTotal = planTotal + modulesTotal;
+            const overallTotalComponent = (overallTotal / 100) * 50;
+            
+            return overallTotalComponent + periodRank * 8 + moduleCount * 25 + modulesSum * 0.1 + (comb.discount * 5);
+        }
+
+        // Função para obter comparação de economia
+        function getSavingsComparison() {
+            const comb1 = state.combination1;
+            const comb2 = state.combination2;
+            
+            if (!comb1.plan || !comb2.plan || !comb1.overallMonthly || !comb2.overallMonthly) {
+                return "";
+            }
+
+            const score1 = getBenefitScore(comb1);
+            const score2 = getBenefitScore(comb2);
+            
+            if (score1 === score2) {
+                const diffMonthly = Math.abs(comb1.overallMonthly - comb2.overallMonthly);
+                const diffAnnual = diffMonthly * 12;
+                return `Diferença de investimento: ${formatCurrency(diffMonthly)} por mês (${formatCurrency(diffAnnual)} ao ano).`;
+            }
+            
+            let beneficial, other, beneficialLabel;
+            if (score1 > score2) {
+                beneficial = comb1;
+                other = comb2;
+                beneficialLabel = "Combinação 1";
+            } else {
+                beneficial = comb2;
+                other = comb1;
+                beneficialLabel = "Combinação 2";
+            }
+            
+            const diffMonthly = beneficial.overallMonthly - other.overallMonthly;
+            if (diffMonthly > 0) {
+                return `${beneficialLabel} implica um investimento adicional de ${formatCurrency(diffMonthly)} por mês.`;
+            } else {
+                const diffAnnual = Math.abs(diffMonthly) * 12;
+                return `${beneficialLabel} gera uma economia de ${formatCurrency(Math.abs(diffMonthly))} por mês (${formatCurrency(diffAnnual)} ao ano).`;
+            }
+        }
+
+        // Função para atualizar a comparação de economia
+        function updateSavingsComparison() {
+            const comparisonText = getSavingsComparison();
+            const comparisonElement = document.getElementById('savingsComparison');
+            const comparisonTextElement = document.getElementById('savingsComparisonText');
+            
+            // Elementos das novas seções
+            const economyElement = document.getElementById('economyComparison');
+            const economyTextElement = document.getElementById('economyText');
+            const benefitsElement = document.getElementById('benefitsComparison');
+            const benefitsListElement = document.getElementById('benefitsList');
+            const recommendationElement = document.getElementById('recommendation');
+            const recommendationTextElement = document.getElementById('recommendationText');
+            
+            if (comparisonText && state.combination1 && state.combination2) {
+                comparisonElement.classList.remove('hidden');
+                comparisonTextElement.textContent = comparisonText;
+                
+                const combo1 = state.combination1;
+                const combo2 = state.combination2;
+                
+                // Calcular diferença de economia
+                const diferenca = Math.abs(combo1.overallTotal - combo2.overallTotal);
+                const maisBarato = combo1.overallTotal < combo2.overallTotal ? combo1 : combo2;
+                const maisCaro = combo1.overallTotal > combo2.overallTotal ? combo1 : combo2;
+                const percentualEconomia = Math.round((diferenca / maisCaro.overallTotal) * 100);
+                
+                // Mostrar economia
+                let economyInfo = '';
+                
+                // Economia entre combinações
+                if (diferenca > 0) {
+                    economyInfo += `A <strong>Combinação ${maisBarato === combo1 ? '1' : '2'}</strong> é <strong>${formatCurrency(diferenca)}</strong> mais barata (${percentualEconomia}% de economia) que a Combinação ${maisCaro === combo1 ? '1' : '2'}.<br><br>`;
+                }
+                
+                // Economia detalhada do plano anual vs mensal para cada combinação
+                [combo1, combo2].forEach((combo, index) => {
+                    if (combo.plan.periodo === 'anual') {
+                        const planType = combo.plan.tipo;
+                        const mensalPlan = planos[planType]['mensal'];
+                        if (mensalPlan) {
+                            const custoMensalTotal = mensalPlan.total * 12;
+                            const economiaAnual = custoMensalTotal - combo.plan.total;
+                            const economiaMensal = economiaAnual / 12;
+                            const percentualEconomiaAnual = Math.round((economiaAnual / custoMensalTotal) * 100);
+                            
+                            if (economiaAnual > 0) {
+                                economyInfo += `
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-2">
+                                        <strong>💰 Combinação ${index + 1} - Economia do Plano Anual:</strong><br>
+                                        • <strong>Economia anual:</strong> ${formatCurrency(economiaAnual)} (${percentualEconomiaAnual}% de desconto)<br>
+                                        • <strong>Economia mensal:</strong> ${formatCurrency(economiaMensal)} por mês<br>
+                                        • <strong>Comparativo:</strong> ${formatCurrency(custoMensalTotal)}/ano (mensal) vs ${formatCurrency(combo.plan.total)}/ano (anual)
+                                    </div>
+                                `;
+                            }
+                        }
+                    } else {
+                        // Para planos mensais, mostrar quanto custaria anualmente
+                        const custoAnualMensal = combo.plan.total * 12;
+                        const planType = combo.plan.tipo;
+                        const anualPlan = planos[planType]['anual'];
+                        if (anualPlan) {
+                            const economiaSeEscolhesseAnual = custoAnualMensal - anualPlan.total;
+                            const percentualEconomiaSeAnual = Math.round((economiaSeEscolhesseAnual / custoAnualMensal) * 100);
+                            
+                            if (economiaSeEscolhesseAnual > 0) {
+                                economyInfo += `
+                                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-2">
+                                        <strong>📊 Combinação ${index + 1} - Análise do Plano Mensal:</strong><br>
+                                        • <strong>Custo anual atual:</strong> ${formatCurrency(custoAnualMensal)} (${formatCurrency(combo.plan.total)}/mês × 12)<br>
+                                        • <strong>Se escolhesse anual:</strong> ${formatCurrency(anualPlan.total)}/ano<br>
+                                        • <strong>Economia perdida:</strong> ${formatCurrency(economiaSeEscolhesseAnual)} (${percentualEconomiaSeAnual}% de desconto não aproveitado)
+                                    </div>
+                                `;
+                            }
+                        }
+                    }
+                });
+                
+                if (economyInfo) {
+                    economyElement.classList.remove('hidden');
+                    economyTextElement.innerHTML = economyInfo;
+                } else {
+                    economyElement.classList.add('hidden');
+                }
+                
+                // Mostrar benefícios comparativos
+                benefitsElement.classList.remove('hidden');
+                benefitsListElement.innerHTML = '';
+                
+                // Comparar períodos
+                if (combo1.plan.periodo !== combo2.plan.periodo) {
+                    const benefitDiv = document.createElement('div');
+                    benefitDiv.className = 'text-xs p-2 bg-gray-50 rounded border-l-4 border-purple-400';
+                    benefitDiv.innerHTML = `
+                        <strong>Período:</strong> Combinação 1 (${combo1.plan.periodo}) vs Combinação 2 (${combo2.plan.periodo})
+                        ${combo1.plan.periodo === 'anual' ? '<br>• Combinação 1: Maior economia a longo prazo' : ''}
+                        ${combo2.plan.periodo === 'anual' ? '<br>• Combinação 2: Maior economia a longo prazo' : ''}
+                        ${combo1.plan.periodo === 'mensal' ? '<br>• Combinação 1: Maior flexibilidade de pagamento' : ''}
+                        ${combo2.plan.periodo === 'mensal' ? '<br>• Combinação 2: Maior flexibilidade de pagamento' : ''}
+                    `;
+                    benefitsListElement.appendChild(benefitDiv);
+                }
+                
+                // Comparar módulos
+                if (combo1.modules.length !== combo2.modules.length) {
+                    const benefitDiv = document.createElement('div');
+                    benefitDiv.className = 'text-xs p-2 bg-gray-50 rounded border-l-4 border-purple-400';
+                    const maisModulos = combo1.modules.length > combo2.modules.length ? combo1 : combo2;
+                    const menosModulos = combo1.modules.length < combo2.modules.length ? combo1 : combo2;
+                    benefitDiv.innerHTML = `
+                        <strong>Módulos:</strong> Combinação ${maisModulos === combo1 ? '1' : '2'} tem ${maisModulos.modules.length - menosModulos.modules.length} módulo(s) a mais
+                        <br>• Mais funcionalidades e recursos disponíveis
+                    `;
+                    benefitsListElement.appendChild(benefitDiv);
+                }
+                
+                // Recomendação inteligente
+                recommendationElement.classList.remove('hidden');
+                let recomendacao = '';
+                
+                if (percentualEconomia > 15) {
+                    recomendacao = `Recomendamos a <strong>Combinação ${maisBarato === combo1 ? '1' : '2'}</strong> pela excelente economia de ${percentualEconomia}%.`;
+                } else if (combo1.modules.length > combo2.modules.length && diferenca < (combo1.overallTotal * 0.1)) {
+                    recomendacao = `Recomendamos a <strong>Combinação 1</strong> pelo melhor custo-benefício com mais módulos.`;
+                } else if (combo2.modules.length > combo1.modules.length && diferenca < (combo2.overallTotal * 0.1)) {
+                    recomendacao = `Recomendamos a <strong>Combinação 2</strong> pelo melhor custo-benefício com mais módulos.`;
+                } else {
+                    recomendacao = `Ambas as combinações são boas opções. Escolha baseado na sua necessidade de módulos e flexibilidade de pagamento.`;
+                }
+                
+                recommendationTextElement.innerHTML = recomendacao;
+                
+                // Destacar a combinação recomendada visualmente
+                const combo1Element = document.getElementById('combination1');
+                const combo2Element = document.getElementById('combination2');
+                
+                // Remover destaques anteriores
+                combo1Element.classList.remove('recommended-plan', 'border-yellow-400', 'shadow-yellow-200');
+                combo2Element.classList.remove('recommended-plan', 'border-yellow-400', 'shadow-yellow-200');
+                
+                // Adicionar destaque à combinação recomendada
+                if (recomendacao.includes('Combinação 1')) {
+                    combo1Element.classList.add('recommended-plan', 'border-yellow-400', 'shadow-yellow-200');
+                    // Adicionar badge de recomendação se não existir
+                    if (!combo1Element.querySelector('.recommendation-badge')) {
+                        const badge = document.createElement('div');
+                        badge.className = 'recommendation-badge absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs px-3 py-1 rounded-full font-bold shadow-lg z-20';
+                        badge.innerHTML = '🏆 RECOMENDADO';
+                        combo1Element.style.position = 'relative';
+                        combo1Element.appendChild(badge);
+                    }
+                } else if (recomendacao.includes('Combinação 2')) {
+                    combo2Element.classList.add('recommended-plan', 'border-yellow-400', 'shadow-yellow-200');
+                    // Adicionar badge de recomendação se não existir
+                    if (!combo2Element.querySelector('.recommendation-badge')) {
+                        const badge = document.createElement('div');
+                        badge.className = 'recommendation-badge absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs px-3 py-1 rounded-full font-bold shadow-lg z-20';
+                        badge.innerHTML = '🏆 RECOMENDADO';
+                        combo2Element.style.position = 'relative';
+                        combo2Element.appendChild(badge);
+                    }
+                }
+                
+            } else {
+                comparisonElement.classList.add('hidden');
+                economyElement.classList.add('hidden');
+                benefitsElement.classList.add('hidden');
+                recommendationElement.classList.add('hidden');
+                
+                // Remover destaques quando não há comparação
+                const combo1Element = document.getElementById('combination1');
+                const combo2Element = document.getElementById('combination2');
+                if (combo1Element && combo2Element) {
+                    combo1Element.classList.remove('recommended-plan', 'border-yellow-400', 'shadow-yellow-200');
+                    combo2Element.classList.remove('recommended-plan', 'border-yellow-400', 'shadow-yellow-200');
+                    
+                    // Remover badges de recomendação
+                    const badge1 = combo1Element.querySelector('.recommendation-badge');
+                    const badge2 = combo2Element.querySelector('.recommendation-badge');
+                    if (badge1) badge1.remove();
+                    if (badge2) badge2.remove();
+                }
+            }
+        }
+
+        // Função para renderizar o select de tipo de plano
+        function renderPlanTypeSelect() {
+            const planTypeSelect = document.getElementById('planType');
+            planTypeSelect.value = state.selectedPlanType;
+        }
+
+        // Função para renderizar as opções de período
+        function renderPeriodOptions() {
+            const periodOptionsContainer = document.getElementById('periodOptions');
+            periodOptionsContainer.innerHTML = '';
+            
+            Object.entries(planos[state.selectedPlanType]).forEach(([period, plan]) => {
+                const periodElement = document.createElement('div');
+                const planClass = `plan-${period}`;
+                periodElement.className = `period-option plan-card ${planClass} ${state.selectedPeriod === period ? 'active' : ''}`;
+                // Calcular economia para planos anuais
+                const isAnual = period === 'anual';
+                const mensal = planos[state.selectedPlanType]['mensal'];
+                const economiaAnual = isAnual && mensal ? ((mensal.total * 12) - plan.total) : 0;
+                const percentualEconomia = isAnual && mensal ? Math.round(((mensal.total * 12 - plan.total) / (mensal.total * 12)) * 100) : 0;
+                
+                periodElement.innerHTML = `
+                    <div class="relative pt-3">
+                        ${period === 'semestral' ? '<div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-lg whitespace-nowrap flex items-center gap-1 h-7">⚡ POPULAR</div>' : ''}
+                        ${period === 'anual' ? '<div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-lg whitespace-nowrap flex items-center gap-1 h-7">💡 Melhor Custo-Benefício</div>' : ''}
+                        <h3 class="font-semibold capitalize text-sm mb-1 flex items-center gap-1">
+                            ${period === 'mensal' ? '📅' : period === 'semestral' ? '⚡' : '🎯'} ${period}
+                        </h3>
+                        <p class="plan-price text-xs font-medium text-purple-600">${formatCurrency(plan.total)}</p>
+                        <p class="plan-subprice text-xs text-gray-400">${formatCurrency(plan.mensal)}/mês</p>
+                    </div>
+                `;
+                periodElement.addEventListener('click', () => {
+                    state.selectedPeriod = period;
+                    renderPeriodOptions();
+                    renderModuleOptions();
+                    updateCombination();
+                });
+                periodOptionsContainer.appendChild(periodElement);
+            });
+        }
+
+        // Função para renderizar as opções de módulos
+        function renderModuleOptions() {
+            const moduleOptionsContainer = document.getElementById('moduleOptions');
+            moduleOptionsContainer.innerHTML = '';
+            
+            modules.forEach(module => {
+                const modulePrice = state.selectedPeriod && module.valueByPeriod 
+                    ? module.valueByPeriod[state.selectedPeriod]
+                    : module.value || 0;
+                const totalPrice = modulePrice * getMultiplier(state.selectedPeriod);
+                
+                const moduleElement = document.createElement('div');
+                moduleElement.className = `module-option ${state.selectedModules.includes(module.id) ? 'active' : ''}`;
+                moduleElement.innerHTML = `
+                    <input type="checkbox" id="${module.id}" class="checkbox" ${state.selectedModules.includes(module.id) ? 'checked' : ''}>
+                    <div class="flex-1">
+                        <p class="font-semibold text-xs mb-0">${module.name}</p>
+                        <div class="flex items-center gap-2">
+                            <span class="badge badge-secondary font-medium text-xs">${formatCurrency(totalPrice)}</span>
+                            <span class="text-xs text-gray-400">${formatCurrency(modulePrice)}/mês</span>
+                        </div>
+                    </div>
+                `;
+                
+                moduleElement.addEventListener('click', () => {
+                    const checkbox = moduleElement.querySelector(`#${module.id}`);
+                    checkbox.checked = !checkbox.checked;
+                    
+                    if (checkbox.checked) {
+                        state.selectedModules.push(module.id);
+                    } else {
+                        state.selectedModules = state.selectedModules.filter(id => id !== module.id);
+                    }
+                    
+                    renderModuleOptions();
+                    updateCombination();
+                });
+                
+                moduleOptionsContainer.appendChild(moduleElement);
+            });
+        }
+
+        // Função para renderizar os controles de desconto
+        function renderDiscountControls() {
+            const discountInput = document.getElementById('discount');
+            discountInput.value = state.discount;
+            
+            const discountSection = document.getElementById('discountSection');
+            const discountControls = document.getElementById('discountControls');
+            const toggleButton = document.getElementById('toggleDiscount');
+            
+            if (state.showDiscount) {
+                discountSection.classList.remove('hidden');
+                discountControls.classList.remove('hidden');
+                toggleButton.textContent = '×';
+                toggleButton.title = 'Fechar desconto';
+            } else {
+                discountSection.classList.add('hidden');
+                discountControls.classList.add('hidden');
+                toggleButton.textContent = '-';
+                toggleButton.title = 'Desconto especial';
+            }
+        }
+
+        // Função para renderizar as combinações
+        function renderCombinations() {
+            renderCombination('combination1', state.combination1);
+            renderCombination('combination2', state.combination2);
+        }
+
+        // Mapeamento de nomes dos planos
+        const planNames = {
+            delivery: '🚚 Plano Delivery',
+            mesas: '🪑 Plano Mesas', 
+            premium: '⭐ Plano Premium'
+        };
+        
+        // Função para renderizar uma combinação específica
+        function renderCombination(key, combination) {
+            const combinationElement = document.getElementById(key);
+            const combinationContentElement = document.getElementById(`${key}Content`);
+            const isActive = state.activeCombination === key;
+            
+            // Atualizar classes para combinação ativa/inativa
+            if (isActive) {
+                combinationElement.classList.add('active-card');
+            } else {
+                combinationElement.classList.remove('active-card');
+            }
+            
+            // Renderizar conteúdo da combinação
+            if (combination.plan) {
+                const planDisplayName = planNames[combination.plan.tipoPlano] || combination.plan.tipoPlano.toUpperCase();
+                combinationContentElement.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="badge badge-outline font-medium">
+                                ${planDisplayName}
+                            </span>
+                            <span class="badge badge-secondary capitalize">
+                                ${combination.plan.periodo}
+                            </span>
+                        </div>
+                        
+                        <div class="text-xs text-gray-700 bg-gray-100 p-2 rounded-lg">
+                            <strong>Módulos:</strong> ${combination.modules.length > 0 
+                                ? combination.modules.map(mod => mod.name).join(", ")
+                                : "Nenhum"}
+                        </div>
+                        
+                        <div class="pt-3 space-y-2 bg-gradient-to-r from-purple-900/20 to-purple-900/20 p-4 rounded-lg border border-purple-500/20">
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-3xl font-bold gradient-text drop-shadow-lg">
+                                    ${formatCurrency(combination.overallTotal || 0)}
+                                </span>
+                                <span class="text-sm text-gray-600 font-medium">total</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xl font-bold text-gray-800 drop-shadow-md">
+                                    ${formatCurrency(combination.overallMonthly || 0)}
+                                </span>
+                                <span class="text-sm text-gray-600 font-medium">/mês</span>
+                            </div>
+                            
+                            <!-- Benefícios do plano -->
+                            <div class="mt-3 space-y-1">
+                                ${combination.plan.periodo === 'anual' ? `
+                                    <div class="flex items-center gap-1 text-xs text-green-700 bg-green-50 px-2 py-1 rounded">
+                                        <span>💰</span> <span>Maior economia anual</span>
+                                    </div>
+                                ` : ''}
+                                ${combination.plan.periodo === 'semestral' ? `
+                                    <div class="flex items-center gap-1 text-xs text-purple-700 bg-purple-50 px-2 py-1 rounded">
+                                        <span>⚡</span> <span>Equilibrio preço/flexibilidade</span>
+                                    </div>
+                                ` : ''}
+                                ${combination.modules.length > 0 ? `
+                                    <div class="flex items-center gap-1 text-xs text-purple-700 bg-purple-50 px-2 py-1 rounded">
+                                        <span>🚀</span> <span>${combination.modules.length} módulo(s) extra</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            
+                            ${combination.discount > 0 ? `
+                                <span class="badge badge-destructive mt-2 bg-gradient-to-r from-red-500 to-pink-500">
+                                    🎉 ${combination.discount}% OFF aplicado
+                                </span>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            } else {
+                combinationContentElement.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <div class="text-4xl mb-3">📋</div>
+                        <div>Selecione um plano e módulos</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Inicialização e event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar select de tipo de plano
+            const planTypeSelect = document.getElementById('planType');
+            planTypeSelect.addEventListener('change', () => {
+                state.selectedPlanType = planTypeSelect.value;
+                renderPeriodOptions();
+                renderModuleOptions();
+                updateCombination();
+            });
+
+            // Inicializar controle de desconto
+            const discountInput = document.getElementById('discount');
+            discountInput.addEventListener('input', () => {
+                state.discount = parseFloat(discountInput.value) || 0;
+                updateCombination();
+            });
+
+            // Inicializar botão de toggle de desconto
+            const toggleDiscountButton = document.getElementById('toggleDiscount');
+            toggleDiscountButton.addEventListener('click', () => {
+                state.showDiscount = !state.showDiscount;
+                renderDiscountControls();
+            });
+
+            // Inicializar combinações
+            document.getElementById('combination1').addEventListener('click', () => {
+                state.activeCombination = 'combination1';
+                loadCombinationData(state.combination1);
+                renderCombinations();
+            });
+
+            document.getElementById('combination2').addEventListener('click', () => {
+                state.activeCombination = 'combination2';
+                loadCombinationData(state.combination2);
+                renderCombinations();
+            });
+
+            // Renderizar interface inicial
+            renderPlanTypeSelect();
+            renderPeriodOptions();
+            renderModuleOptions();
+            renderDiscountControls();
+            renderCombinations();
+        });
+
+        // Funcionalidade da aba de captura
+        let capturedImageData = null;
+
+        // Função showTab removida - não há mais navegação entre abas
+
+        // Event listeners para as abas (removido captureTab pois a aba foi removida)
+
+        // Atualizar status das combinações
+        function updateCombinationStatus() {
+            const combination1Status = document.getElementById('combination1Status');
+            const combination2Status = document.getElementById('combination2Status');
+
+            const hasCombination1 = state.combination1.plan && state.combination1.plan !== '';
+            const hasCombination2 = state.combination2.plan && state.combination2.plan !== '';
+
+            combination1Status.textContent = hasCombination1 ? 'Configurada' : 'Não configurada';
+            combination1Status.className = hasCombination1 ? 'badge bg-green-500 text-white' : 'badge badge-secondary';
+
+            combination2Status.textContent = hasCombination2 ? 'Configurada' : 'Não configurada';
+            combination2Status.className = hasCombination2 ? 'badge bg-green-500 text-white' : 'badge badge-secondary';
+        }
+
+        // Função para capturar screenshot
+        async function captureScreenshot() {
+            const captureButton = document.getElementById('captureButton');
+            const captureButtonText = document.getElementById('captureButtonText');
+
+            // Verificar se há combinações configuradas
+            const hasCombinations = (state.combination1.plan && state.combination1.plan !== '') || 
+                                  (state.combination2.plan && state.combination2.plan !== '');
+            
+            if (!hasCombinations) {
+                alert('Configure pelo menos uma combinação na aba Calculadora primeiro!');
+                return;
+            }
+
+            captureButton.disabled = true;
+            captureButtonText.textContent = 'Capturando...';
+
+            try {
+                // Verificar se há combinações configuradas primeiro
+                const hasCombination1 = state.combination1.plan && state.combination1.plan !== '';
+                const hasCombination2 = state.combination2.plan && state.combination2.plan !== '';
+                
+                console.log('Debug - Estado das combinações:', {
+                    combination1: state.combination1,
+                    combination2: state.combination2,
+                    hasCombination1,
+                    hasCombination2
+                });
+                
+                if (!hasCombination1 && !hasCombination2) {
+                    throw new Error('Configure pelo menos uma combinação na aba Calculadora primeiro!');
+                }
+                
+                // Verificar se html2canvas está disponível
+                if (typeof html2canvas === 'undefined') {
+                    console.log('Carregando html2canvas...');
+                    // Carregar html2canvas dinamicamente
+                    const script = document.createElement('script');
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                    script.crossOrigin = 'anonymous';
+                    document.head.appendChild(script);
+                    
+                    await new Promise((resolve, reject) => {
+                        script.onload = () => {
+                            console.log('html2canvas carregado com sucesso');
+                            resolve();
+                        };
+                        script.onerror = (error) => {
+                            console.error('Erro ao carregar html2canvas:', error);
+                            reject(new Error('Falha ao carregar biblioteca html2canvas'));
+                        };
+                    });
+                    
+                    // Aguardar um pouco mais para garantir que a biblioteca está pronta
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+
+                // Ir para a aba da calculadora e aguardar renderização
+                showTab('calculator');
+                // Aguardar carregamento completo das fontes e renderização
+                await document.fonts.ready;
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Procurar especificamente pelas combinações renderizadas
+                const combination1 = document.getElementById('combination1');
+                const combination2 = document.getElementById('combination2');
+                
+                // Verificar se existem combinações
+                if (!combination1 && !combination2) {
+                    throw new Error('Nenhuma combinação configurada encontrada');
+                }
+                
+                // Capturar diretamente o container das combinações sem clonar
+                const combinationsContainer = document.querySelector('#calculatorContent .space-y-4');
+                let targetElement;
+                
+                if (combinationsContainer && (combinationsContainer.contains(combination1) || combinationsContainer.contains(combination2))) {
+                    // Capturar o container original das combinações
+                    targetElement = combinationsContainer;
+                } else {
+                    // Se não encontrar o container, capturar o elemento pai comum
+                    const parentElement = combination1 ? combination1.parentElement : combination2.parentElement;
+                    targetElement = parentElement || combination1 || combination2;
+                }
+                
+                console.log('Debug - Elemento para captura:', targetElement);
+                
+                if (!targetElement) {
+                    throw new Error('Nenhum elemento válido encontrado para captura');
+                }
+                
+                console.log('Elemento para captura:', targetElement);
+                console.log('Dimensões:', targetElement.offsetWidth, 'x', targetElement.offsetHeight);
+                console.log('Visível:', targetElement.offsetParent !== null);
+
+                // Capturar com html2canvas usando configurações otimizadas
+                console.log('Debug - Iniciando captura com html2canvas...');
+                const canvas = await html2canvas(targetElement, {
+                    backgroundColor: '#ffffff',
+                    scale: 2, // qualidade retina
+                    useCORS: true,
+                    allowTaint: false,
+                    logging: false,
+                    windowWidth: targetElement.scrollWidth,
+                    windowHeight: targetElement.scrollHeight
+                });
+                console.log('Debug - Canvas criado com sucesso:', canvas);
+                
+                // Remover fallback após a captura
+                gradientElements.forEach(el => {
+                    el.classList.remove('gradient-text-fallback');
+                });
+                
+                console.log('Canvas criado:', canvas.width, 'x', canvas.height);
+                
+                if (canvas.width === 0 || canvas.height === 0) {
+                    throw new Error('Canvas vazio - elemento pode estar oculto');
+                }
+                
+                // Remover fallback após a captura
+                gradientElements.forEach(el => {
+                    el.classList.remove('gradient-text-fallback');
+                });
+                
+                // Converter para PNG com máxima qualidade
+                capturedImageData = canvas.toDataURL('image/png', 1.0);
+                
+                // Não há elementos temporários para limpar
+                
+                // Voltar para a aba de captura
+                showTab('capture');
+                
+                showCapturedImage();
+                
+            } catch (error) {
+                console.error('Erro detalhado ao capturar:', error);
+                alert('Erro ao capturar screenshot: ' + error.message + '\n\nVerifique o console do navegador (F12) para mais detalhes.');
+                // Voltar para a aba de captura em caso de erro
+                showTab('capture');
+            } finally {
+                captureButton.disabled = false;
+                captureButtonText.textContent = 'Capturar';
+            }
+        }
+
+        // Função de captura integrada (sem trocar de aba)
+        async function captureIntegrated() {
+            const captureButton = document.getElementById('captureButton');
+            
+            if (!captureButton) return;
+            
+            captureButton.disabled = true;
+            captureButton.innerHTML = '<svg class="animate-spin w-4 h-4" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"></circle><path fill="currentColor" opacity="0.75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Capturando...</span>';
+            
+            try {
+                // Verificar se html2canvas está disponível
+                if (typeof html2canvas === 'undefined') {
+                    console.log('Carregando html2canvas...');
+                    const script = document.createElement('script');
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                    script.crossOrigin = 'anonymous';
+                    document.head.appendChild(script);
+                    
+                    await new Promise((resolve, reject) => {
+                        script.onload = () => {
+                            console.log('html2canvas carregado com sucesso');
+                            resolve();
+                        };
+                        script.onerror = (error) => {
+                            console.error('Erro ao carregar html2canvas:', error);
+                            reject(new Error('Falha ao carregar biblioteca html2canvas'));
+                        };
+                    });
+                    
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+
+                // Aguardar carregamento completo das fontes e renderização
+                await document.fonts.ready;
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Procurar especificamente pelas combinações renderizadas
+                const combination1 = document.getElementById('combination1');
+                const combination2 = document.getElementById('combination2');
+                
+                console.log('Debug - combination1:', combination1);
+                console.log('Debug - combination2:', combination2);
+                console.log('Debug - combination1 visível:', combination1 ? combination1.offsetParent !== null : false);
+                console.log('Debug - combination2 visível:', combination2 ? combination2.offsetParent !== null : false);
+                
+                // Verificar se existem combinações
+                if (!combination1 && !combination2) {
+                    throw new Error('Nenhuma combinação configurada encontrada');
+                }
+                
+                // Capturar diretamente o container das combinações sem clonar
+                const combinationsContainer = document.querySelector('#calculatorContent .space-y-4');
+                let targetElement;
+                
+                if (combinationsContainer && (combinationsContainer.contains(combination1) || combinationsContainer.contains(combination2))) {
+                    // Capturar o container original das combinações
+                    targetElement = combinationsContainer;
+                } else {
+                    // Se não encontrar o container, capturar o elemento pai comum
+                    const parentElement = combination1 ? combination1.parentElement : combination2.parentElement;
+                    targetElement = parentElement || combination1 || combination2;
+                }
+                
+                console.log('Debug - Elemento para captura:', targetElement);
+                
+                if (!targetElement) {
+                    throw new Error('Nenhum elemento válido encontrado para captura');
+                }
+                
+                console.log('Debug - targetElement:', targetElement);
+                console.log('Debug - targetElement visível:', targetElement ? targetElement.offsetParent !== null : false);
+                console.log('Debug - targetElement dimensões:', {
+                    width: targetElement ? targetElement.offsetWidth : 0,
+                    height: targetElement ? targetElement.offsetHeight : 0,
+                    scrollWidth: targetElement ? targetElement.scrollWidth : 0,
+                    scrollHeight: targetElement ? targetElement.scrollHeight : 0
+                });
+
+                // Aplicar fallback para gradient-text antes da captura
+                const gradientElements = targetElement.querySelectorAll('.gradient-text');
+                gradientElements.forEach(el => {
+                    el.classList.add('gradient-text-fallback');
+                });
+
+                // Capturar com html2canvas usando configurações otimizadas
+                console.log('Debug - Iniciando captura com html2canvas...');
+                const canvas = await html2canvas(targetElement, {
+                    backgroundColor: '#ffffff',
+                    scale: 2, // qualidade retina
+                    useCORS: true,
+                    allowTaint: false,
+                    logging: false,
+                    windowWidth: targetElement.scrollWidth,
+                    windowHeight: targetElement.scrollHeight
+                });
+                console.log('Debug - Canvas criado com sucesso:', canvas);
+                
+                console.log('Canvas criado:', canvas.width, 'x', canvas.height);
+                
+                if (canvas.width === 0 || canvas.height === 0) {
+                    throw new Error('Canvas vazio - elemento pode estar oculto');
+                }
+                
+                // Converter para PNG com máxima qualidade
+                capturedImageData = canvas.toDataURL('image/png', 1.0);
+                
+                // Não há elementos temporários para limpar
+                
+                // Mostrar modal com a imagem
+                showCaptureModal();
+                
+            } catch (error) {
+                console.error('Erro detalhado ao capturar:', error);
+                alert('Erro ao capturar screenshot: ' + error.message + '\n\nVerifique o console do navegador (F12) para mais detalhes.');
+            } finally {
+                captureButton.disabled = false;
+                captureButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>';
+            }
+        }
+
+        // Mostrar modal de captura
+        function showCaptureModal() {
+            if (!capturedImageData) return;
+            
+            const modal = document.getElementById('captureModal');
+            const modalImage = document.getElementById('modalImage');
+            
+            modalImage.src = capturedImageData;
+            modal.classList.remove('hidden');
+        }
+
+        // Fechar modal
+        function closeCaptureModal() {
+            const modal = document.getElementById('captureModal');
+            modal.classList.add('hidden');
+        }
+
+        // Download da imagem do modal
+        function downloadFromModal() {
+            if (!capturedImageData) return;
+            
+            const link = document.createElement('a');
+            link.download = `plano-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.png`;
+            link.href = capturedImageData;
+            link.click();
+        }
+
+        // Mostrar imagem capturada
+        function showCapturedImage() {
+            const capturedImageContainer = document.getElementById('capturedImageContainer');
+            const capturePreview = document.getElementById('capturePreview');
+            const capturedImage = document.getElementById('capturedImage');
+            const retakeButton = document.getElementById('retakeButton');
+            const downloadButton = document.getElementById('downloadButton');
+
+            capturedImage.src = capturedImageData;
+            capturedImageContainer.style.display = 'block';
+            capturePreview.style.display = 'none';
+            retakeButton.style.display = 'block';
+            downloadButton.style.display = 'block';
+        }
+
+        // Funções retakePhoto e downloadImage removidas - funcionalidade agora está no modal
+
+        // Event listeners para os botões de captura
+        document.getElementById('captureButton').addEventListener('click', captureIntegrated);
+        
+        // Event listeners para o modal
+        document.getElementById('closeModal').addEventListener('click', closeCaptureModal);
+        document.getElementById('downloadModalButton').addEventListener('click', downloadFromModal);
+        document.getElementById('recaptureModalButton').addEventListener('click', () => {
+            closeCaptureModal();
+            captureIntegrated();
+        });
+        
+        // Fechar modal clicando fora dele
+        document.getElementById('captureModal').addEventListener('click', (e) => {
+            if (e.target.id === 'captureModal') {
+                closeCaptureModal();
+            }
+        });
+    </script>
+    
+    <!-- Rodapé com logo -->
+    <footer class="mt-8 py-6 border-t border-gray-200 bg-white">
+        <div class="max-w-6xl mx-auto text-center">
+
+            <p class="text-sm text-gray-500">Powered by CardápioWeb - Automatizando seu negócio</p>
+        </div>
+    </footer>
+</body>
+</html>
