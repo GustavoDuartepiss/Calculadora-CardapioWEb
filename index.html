@@ -661,7 +661,7 @@
     </style>
 </head>
 <body class="text-black dark:text-textoClaro transition-colors duration-300 min-h-screen p-1 md:p-2">
-    <div id="plan-calculator" class="max-w-6xl mx-auto space-y-2">
+    <div id="plan-calculator" class="max-w-[1400px] mx-auto space-y-2 px-2">
         <div class="text-center mb-1 relative">
             <div class="flex items-center justify-center gap-4 mb-1">
                 <h1 class="text-3xl font-bold gradient-text animate-fade-in tracking-tight">Calculadora CardapioWEB</h1>
@@ -670,7 +670,7 @@
         </div>
 
         <!-- Conteúdo da Calculadora -->
-        <div id="calculatorContent" class="grid lg:grid-cols-2 gap-4">
+        <div id="calculatorContent" class="grid grid-cols-1 lg:grid-cols-2 gap-3 xl:gap-4 items-start">
             <!-- Painel Esquerdo - Configuração -->
             <div class="card glass-card p-4 relative overflow-hidden group hover:shadow-elegant transition-all duration-500 animate-slide-up">
                 <div class="absolute -top-20 -right-20 w-40 h-40 bg-gradient-primary opacity-10 rounded-full blur-xl group-hover:opacity-20 transition-opacity duration-500"></div>
@@ -701,7 +701,7 @@
                             <div class="w-2 h-2 bg-gradient-primary rounded-full"></div>
                             Período:
                         </label>
-                        <div id="periodOptions" class="grid grid-cols-2 gap-2">
+                        <div id="periodOptions" class="grid grid-cols-2 md:grid-cols-4 gap-2">
                             <!-- Períodos serão inseridos via JavaScript -->
                         </div>
                     </div>
@@ -712,7 +712,7 @@
                             <div class="w-2 h-2 bg-gradient-primary rounded-full"></div>
                             Módulos adicionais:
                         </label>
-                        <div id="moduleOptions" class="space-y-1">
+                        <div id="moduleOptions" class="grid grid-cols-2 md:grid-cols-3 gap-2">
                             <!-- Módulos serão inseridos via JavaScript -->
                         </div>
                     </div>
@@ -723,7 +723,7 @@
             <div class="space-y-3">
 
                 <!-- Combinações -->
-                <div class="space-y-2">
+                <div class="grid md:grid-cols-2 gap-3">
 
                     <div id="combination1" class="card combination-card p-3 cursor-pointer transition-all duration-500 overflow-hidden hover:shadow-elegant border-2 border-purple-500/30 bg-white dark:bg-cardEscuro text-black dark:text-textoClaro backdrop-blur-sm animate-scale-in dark:border-[rgba(255,255,255,0.15)] dark:shadow-[0_0_20px_rgba(91,46,255,0.3)]">
                         <div class="absolute -top-10 -right-10 w-20 h-20 bg-gradient-primary opacity-10 rounded-full blur-xl group-hover:opacity-20 transition-opacity duration-500"></div>
