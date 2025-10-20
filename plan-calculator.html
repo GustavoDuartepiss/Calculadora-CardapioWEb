@@ -5,14 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Planos</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              roxo: {
+                500: '#5B2EFF',
+                600: '#8B5CF6',
+                700: '#9D4EDD'
+              },
+              fundoClaro: '#F8F7FC',
+              fundoEscuro: '#0F0F15',
+              cardEscuro: '#1A1825',
+              textoClaro: '#EDEDED'
+            }
+          }
+        }
+      }
+    </script>
     <style>
+        :root {
+            --color-card: #F8F7FC;
+            --color-background: #f8fafc;
+        }
         body {
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
         
         .card {
-            background: white;
+            background: var(--color-card);
             border-radius: 0.75rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             padding: 1.5rem;
@@ -63,18 +87,31 @@
             height: 1rem;
             margin-right: 0.5rem;
         }
+        .dark body { 
+           background: radial-gradient(circle at top right, #1A1625 0%, #0F0F15 70%); 
+         } 
+         
+         .dark .card { 
+           background: linear-gradient(145deg, #1E1B29 0%, #151320 100%); 
+           box-shadow: 0 0 20px rgba(91, 46, 255, 0.2); 
+           border: 1px solid rgba(255, 255, 255, 0.05); 
+           transition: all 0.3s ease; 
+         }
+        * { 
+           transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; 
+         }
     </style>
 </head>
-<body class="min-h-screen p-4">
+<body class="text-black dark:text-textoClaro transition-colors duration-300 min-h-screen p-4">
     <div class="max-w-6xl mx-auto">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">🧮 Calculadora de Planos</h1>
-            <p class="text-gray-600">Configure seu plano e módulos adicionais</p>
+        <div class="text-center mb-8 relative">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-textoClaro mb-2">🧮 Calculadora de Planos</h1>
+            <p class="text-gray-600 dark:text-gray-300">Configure seu plano e módulos adicionais</p>
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Seleção de Plano -->
-            <div class="card">
+            <div class="card bg-white dark:bg-cardEscuro text-black dark:text-textoClaro border border-gray-200 dark:border-[rgba(255,255,255,0.15)] rounded-2xl shadow-md dark:shadow-[0_0_20px_rgba(91,46,255,0.3)]">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">📋 Selecionar Plano</h2>
                 
                 <div class="mb-4">
@@ -116,7 +153,7 @@
             </div>
             
             <!-- Módulos Adicionais -->
-            <div class="card">
+            <div class="card bg-white dark:bg-cardEscuro text-black dark:text-textoClaro border border-gray-200 dark:border-[rgba(255,255,255,0.15)] rounded-2xl shadow-md dark:shadow-[0_0_20px_rgba(91,46,255,0.3)]">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">🔧 Módulos Adicionais</h2>
                 
                 <div class="space-y-3">
@@ -148,7 +185,7 @@
             </div>
             
             <!-- Desconto -->
-            <div class="card">
+            <div class="card bg-white dark:bg-cardEscuro text-black dark:text-textoClaro border border-gray-200 dark:border-[rgba(255,255,255,0.15)] rounded-2xl shadow-md dark:shadow-[0_0_20px_rgba(91,46,255,0.3)]">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">💰 Desconto</h2>
                 
                 <div class="mb-4">
@@ -158,7 +195,7 @@
             </div>
             
             <!-- Resumo Final -->
-            <div class="card">
+            <div class="card bg-white dark:bg-cardEscuro text-black dark:text-textoClaro border border-gray-200 dark:border-[rgba(255,255,255,0.15)] rounded-2xl shadow-md dark:shadow-[0_0_20px_rgba(91,46,255,0.3)]">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">📊 Resumo Final</h2>
                 
                 <div class="space-y-3">
@@ -300,3 +337,19 @@
     </script>
 </body>
 </html>
+<script>
+     (function(){
+       const root = document.documentElement;
+       const icon = document.getElementById('theme-icon');
+       const label = document.getElementById('theme-label');
+       const applyLight = () => {
+         root.removeAttribute('data-theme');
+         root.classList.remove('dark');
+         if (icon) icon.textContent = '☀️';
+         if (label) label.textContent = 'Modo Claro';
+         try { localStorage.removeItem('theme'); } catch(e) {}
+       };
+       applyLight();
+       window.toggleTheme = function(){ applyLight(); };
+     })();
+     </script>

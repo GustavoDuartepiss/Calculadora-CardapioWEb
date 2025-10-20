@@ -4,13 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Planos</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              roxo: {
+                500: '#5B2EFF',
+                600: '#8B5CF6',
+                700: '#9D4EDD'
+              },
+              fundoClaro: '#F8F7FC',
+              fundoEscuro: '#0F0F15',
+              cardEscuro: '#1A1825',
+              textoClaro: '#EDEDED'
+            }
+          }
+        }
+      }
+    </script>
     <style>
         :root {
             --color-primary: #5D3A8E; /* Roxo principal */
             --color-accent: #9747FF;  /* Roxo destaque */
             --color-muted: #6b7280;   /* Cinza para texto secundário */
-            --color-card: #ffffff;    /* Fundo de cards */
+            --color-card: #F8F7FC;    /* Fundo de cards (cinza suave) */
             --color-background: #f3f4f6; /* Fundo da página */
             --color-border: #e5e7eb;  /* Bordas suaves */
             --color-primary-foreground: #ffffff;
@@ -332,7 +352,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
-            background: white;
+            background: var(--color-card);
         }
         
         .checkbox:hover {
@@ -375,7 +395,7 @@
             font-weight: 500;
             color: #374151;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            background-color: white;
+            background-color: var(--color-card);
             transition: all 0.3s ease;
             backdrop-filter: blur(5px);
             line-height: 1.5;
@@ -595,7 +615,7 @@
             padding: 0.75rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: white;
+            background: var(--color-card);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-bottom: 0.5rem;
             color: #374151;
@@ -616,13 +636,36 @@
             color: #5d3a8e;
             font-weight: 700;
         }
+    .dark body { 
+       background: radial-gradient(circle at top right, #1A1625 0%, #0F0F15 70%); 
+    } 
+     
+    .dark .card { 
+       background: linear-gradient(145deg, #1E1B29 0%, #151320 100%); 
+       box-shadow: 0 0 20px rgba(91, 46, 255, 0.2); 
+       border: 1px solid rgba(255, 255, 255, 0.05); 
+       transition: all 0.3s ease; 
+    }
+    .dark .combination-card { 
+      background: linear-gradient(180deg, #1D1B26 0%, #151320 100%); 
+      border: 1px solid rgba(157, 78, 221, 0.2); 
+      box-shadow: 0 0 12px rgba(157, 78, 221, 0.15); 
+    }
+    .dark .combination-card:hover { 
+      border-color: rgba(157, 78, 221, 0.6); 
+      box-shadow: 0 0 20px rgba(157, 78, 221, 0.3); 
+    }
+    * { 
+       transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; 
+     }
     </style>
 </head>
-<body class="min-h-screen p-1 md:p-2 bg-gray-50">
+<body class="text-black dark:text-textoClaro transition-colors duration-300 min-h-screen p-1 md:p-2">
     <div id="plan-calculator" class="max-w-6xl mx-auto space-y-2">
         <div class="text-center mb-1 relative">
             <div class="flex items-center justify-center gap-4 mb-1">
                 <h1 class="text-3xl font-bold gradient-text animate-fade-in tracking-tight">Calculadora CardapioWEB</h1>
+                
             </div>
         </div>
 
@@ -682,7 +725,7 @@
                 <!-- Combinações -->
                 <div class="space-y-2">
 
-                    <div id="combination1" class="card p-3 cursor-pointer transition-all duration-500 overflow-hidden hover:shadow-elegant border-2 border-purple-500/30 bg-white backdrop-blur-sm animate-scale-in">
+                    <div id="combination1" class="card combination-card p-3 cursor-pointer transition-all duration-500 overflow-hidden hover:shadow-elegant border-2 border-purple-500/30 bg-white dark:bg-cardEscuro text-black dark:text-textoClaro backdrop-blur-sm animate-scale-in dark:border-[rgba(255,255,255,0.15)] dark:shadow-[0_0_20px_rgba(91,46,255,0.3)]">
                         <div class="absolute -top-10 -right-10 w-20 h-20 bg-gradient-primary opacity-10 rounded-full blur-xl group-hover:opacity-20 transition-opacity duration-500"></div>
                         
                         <div class="relative z-10">
@@ -696,7 +739,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="combination2" class="card p-3 cursor-pointer transition-all duration-500 overflow-hidden hover:shadow-elegant border-2 border-purple-500/30 bg-white backdrop-blur-sm animate-scale-in">
+                    <div id="combination2" class="card combination-card p-3 cursor-pointer transition-all duration-500 overflow-hidden hover:shadow-elegant border-2 border-purple-500/30 bg-white dark:bg-cardEscuro text-black dark:text-textoClaro backdrop-blur-sm animate-scale-in dark:border-[rgba(255,255,255,0.15)] dark:shadow-[0_0_20px_rgba(91,46,255,0.3)]">
                         <div class="absolute -top-10 -right-10 w-20 h-20 bg-gradient-primary opacity-10 rounded-full blur-xl group-hover:opacity-20 transition-opacity duration-500"></div>
                         
                         <div class="relative z-10">
@@ -1828,5 +1871,24 @@
             <p class="text-sm text-gray-500">Powered by CardápioWeb - Automatizando seu negócio</p>
         </div>
     </footer>
+    <!-- Tema escuro/ claro toggle -->
+    <script>
+    (function(){
+      const root = document.documentElement;
+      const icon = document.getElementById('theme-icon');
+      const label = document.getElementById('theme-label');
+      const applyLight = () => {
+        root.removeAttribute('data-theme');
+        root.classList.remove('dark');
+        if (icon) icon.textContent = '☀️';
+        if (label) label.textContent = 'Modo Claro';
+        try { localStorage.removeItem('theme'); } catch(e) {}
+      };
+      // força modo claro na carga
+      applyLight();
+      // desativa o toggle (mantém sempre claro)
+      window.toggleTheme = function(){ applyLight(); };
+    })();
+    </script>
 </body>
 </html>
