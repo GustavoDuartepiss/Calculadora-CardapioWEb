@@ -161,7 +161,7 @@
             <div class="card bg-white dark:bg-cardEscuro text-black dark:text-textoClaro border border-gray-200 dark:border-[rgba(255,255,255,0.15)] rounded-2xl shadow-md dark:shadow-[0_0_20px_rgba(91,46,255,0.3)]">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">🔧 Módulos Adicionais</h2>
                 
-                <div class="space-y-3">
+                <div class="grid md:grid-cols-2 gap-2">
                     <div class="flex items-center">
                         <input type="checkbox" id="moduloIfood" class="checkbox" onchange="updateCalculation()">
                         <label for="moduloIfood" class="text-sm">Integração com Ifood - R$ 19,90/mês</label>
@@ -203,7 +203,7 @@
             <div class="card bg-white dark:bg-cardEscuro text-black dark:text-textoClaro border border-gray-200 dark:border-[rgba(255,255,255,0.15)] rounded-2xl shadow-md dark:shadow-[0_0_20px_rgba(91,46,255,0.3)]">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">📊 Resumo Final</h2>
                 
-                <div class="space-y-3">
+                <div class="grid md:grid-cols-2 gap-2">
                     <div class="flex justify-between items-center py-2 border-b">
                         <span class="text-gray-600">Plano Base (Mensal):</span>
                         <span id="summaryPlanMonthly" class="font-semibold">R$ 0,00</span>

@@ -720,7 +720,7 @@
             </div>
 
             <!-- Painel Direito - Comparações -->
-            <div class="space-y-3">
+            <div class="grid md:grid-cols-2 gap-3">
 
                 <!-- Combinações -->
                 <div class="grid md:grid-cols-2 gap-3">
@@ -1401,7 +1401,7 @@
             if (combination.plan) {
                 const planDisplayName = planNames[combination.plan.tipoPlano] || combination.plan.tipoPlano.toUpperCase();
                 combinationContentElement.innerHTML = `
-                    <div class="space-y-3">
+                    <div class="grid md:grid-cols-2 gap-3">
                         <div class="flex items-center gap-2">
                             <span class="badge badge-outline font-medium">
                                 ${planDisplayName}
